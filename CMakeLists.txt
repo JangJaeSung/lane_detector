@@ -7,13 +7,15 @@ add_compile_options(-std=c++11)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-set(OpenCV_DIR /opt/ros/kinetic/share/OpenCV-3.3.1-dev)
+## set(OpenCV_DIR /opt/ros/melodic/share/OpenCV-3.4.2-dev)
+set(OpenCV_DIR /usr/share/OpenCV/)
 
 find_package(catkin REQUIRED COMPONENTS
 	cv_bridge
 	OpenCV REQUIRED
 	roscpp
     	std_msgs
+	geometry_msgs
 	serial 
 	sensor_msgs
 	image_transport
@@ -120,7 +122,7 @@ include_directories(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES opencv_test
-  CATKIN_DEPENDS roscpp std_msgs sensor_msgs 
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs geometry_msgs 
   DEPENDS system_lib
 )
 

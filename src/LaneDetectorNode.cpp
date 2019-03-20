@@ -8,6 +8,9 @@ LaneDetectorNode::LaneDetectorNode()
 	nh = ros::NodeHandle();
 	nh_ = ros::NodeHandle("~");
 
+	//Control Arduino
+	twist_pub_ = nh.advertise<geometry_msgs::Twist>("twist_msg", 1000);
+
 	/* if NodeHangle("~"), then (write -> /lane_detector/write)	*/
 	control_pub_ = nh.advertise<std_msgs::String>("write", 1000);
 	//control_pub_ = nh_.advertise<ackermann_msgs::AckermannDriveStamped>("ackermann", 10);
@@ -39,8 +42,13 @@ void LaneDetectorNode::imageCallback(const sensor_msgs::ImageConstPtr& image)
 	
 	std_msgs::String control_msg = makeControlMsg(steer_control_value_);
 	//ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
-	
-	cout << "steer : " << steer_control_value_ << "  throttle : " << throttle_ << endl;
+
+	twist_msg_.angular.z = steer_control_value_;
+	twist_msg_.linear.x = throttle_;
+	twist_pub_.publish(twist_msg_);
+
+
+	cout << "steer(twist) : " << twist_msg_.angular.z << "  throttle(twist) : " << twist_msg_.linear.x << endl;
 	control_pub_.publish(control_msg);
 }
 

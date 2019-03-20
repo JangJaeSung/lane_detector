@@ -70,6 +70,9 @@ class LaneDetectorNode
 	protected:
 		ros::NodeHandle nh;
 		ros::NodeHandle nh_;
+
+		ros::Publisher twist_pub_;	//Control Arduino
+
 		ros::Publisher control_pub_;	// Controll message Publisher
 		ros::Subscriber image_sub_;	//raw image message Subscriber
 		//actionlib::SimpleActionServer<state_cpp_msg::MissionPlannerAction> as_;
@@ -99,6 +102,9 @@ class LaneDetectorNode
 		std::vector<std::vector<cv::Vec4i> > left_right_lines;
 		std::vector<cv::Point> lane;
 		std::string turn;
+
+		geometry_msgs::Twist twist_msg_;
+		
 		int flag_plot = -1;
 		int i = 0;
 		double avg = 0;

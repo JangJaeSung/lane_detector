@@ -1,7 +1,7 @@
 <launch>
 <!-- usb_cam -->
 	<node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
-		<param name="video_device" value="/dev/video1" />
+		<param name="video_device" value="/dev/video0" />
 		<param name="image_width" value="640" />
 		<param name="image_height" value="480" />
 		<param name="pixel_format" value="yuyv" />
@@ -12,7 +12,6 @@
 
 <!-- platform_control-->
     <!--<node pkg="platform_control" type="write_serial" name="write_serial" />-->
-	<node pkg="serial_example" type="serial_read_and_write_node" name="serial_read_and_write_node"/>
 
 <!-- lane_detector-->
 	<node pkg="lane_detector" type="lane_detector" name="lane_detector" output="screen">
