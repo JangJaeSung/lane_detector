@@ -10,7 +10,8 @@
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
 #include <signal.h>
-
+#include <geometry_msgs/Twist.h>
+#include <std_msgs/Float64.h>
 
 #ifndef LANEDETECTORNODE_H
 #define LANEDETECTORNODE_H
@@ -70,8 +71,12 @@ class LaneDetectorNode
 	protected:
 		ros::NodeHandle nh;
 		ros::NodeHandle nh_;
-
-		ros::Publisher twist_pub_;	//Control Arduino
+	
+		//Control gazebo
+		ros::Publisher left_vel_pub_;
+		ros::Publisher right_vel_pub_;
+		ros::Publisher left_pos_pub_;
+		ros::Publisher right_pos_pub_;
 
 		ros::Publisher control_pub_;	// Controll message Publisher
 		ros::Subscriber image_sub_;	//raw image message Subscriber
@@ -103,7 +108,10 @@ class LaneDetectorNode
 		std::vector<cv::Point> lane;
 		std::string turn;
 
-		geometry_msgs::Twist twist_msg_;
+		std_msgs::Float64 left_vel_;
+		std_msgs::Float64 right_vel_;
+		std_msgs::Float64 left_pos_;
+		std_msgs::Float64 right_pos_;
 		
 		int flag_plot = -1;
 		int i = 0;
@@ -113,7 +121,7 @@ class LaneDetectorNode
 		int j = 0;
 		double angle = 0;
 		int MAX_STEER = 260;
-		int STEER_ZERO = 1450;
+		int STEER_ZERO = 1500;
 
 };
 

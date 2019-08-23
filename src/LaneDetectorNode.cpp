@@ -8,13 +8,16 @@ LaneDetectorNode::LaneDetectorNode()
 	nh = ros::NodeHandle();
 	nh_ = ros::NodeHandle("~");
 
-	//Control Arduino
-	twist_pub_ = nh.advertise<geometry_msgs::Twist>("twist_msg", 1000);
+	//Control gazebo
+	left_vel_pub_ = nh.advertise<std_msgs::Float64>("/leading_vehicle/left_velocity_controller/command/", 1000);
+	right_vel_pub_ = nh.advertise<std_msgs::Float64>("/leading_vehicle/right_velocity_controller/command/", 1000);
+	left_pos_pub_ = nh.advertise<std_msgs::Float64>("/leading_vehicle/left_position_controller/command/", 1000);
+	right_pos_pub_ = nh.advertise<std_msgs::Float64>("/leading_vehicle/right_position_controller/command/", 1000);
 
 	/* if NodeHangle("~"), then (write -> /lane_detector/write)	*/
 	control_pub_ = nh.advertise<std_msgs::String>("write", 1000);
 	//control_pub_ = nh_.advertise<ackermann_msgs::AckermannDriveStamped>("ackermann", 10);
-	image_sub_ = nh_.subscribe("/usb_cam/image_raw", 1, &LaneDetectorNode::imageCallback, this);
+	image_sub_ = nh_.subscribe("/LV/camera/image_raw", 1, &LaneDetectorNode::imageCallback, this);
 
 	getRosParamForUpdate();
 }
@@ -38,17 +41,23 @@ void LaneDetectorNode::imageCallback(const sensor_msgs::ImageConstPtr& image)
 
 	getRosParamForUpdate();
 
-	steer_control_value_ = laneDetecting();
+	steer_control_value_ = (float)laneDetecting();
 	
 	std_msgs::String control_msg = makeControlMsg(steer_control_value_);
 	//ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
 
-	twist_msg_.angular.z = steer_control_value_;
-	twist_msg_.linear.x = throttle_;
-	twist_pub_.publish(twist_msg_);
+	left_vel_.data = 9.0;
+	right_vel_.data = 9.0;
+	left_pos_.data = (steer_control_value_ - 1500.0) / 100.0 * 0.35;
+	right_pos_.data = (steer_control_value_ - 1500.0) / 100.0 * 0.35;
 
-
-	cout << "steer(twist) : " << twist_msg_.angular.z << "  throttle(twist) : " << twist_msg_.linear.x << endl;
+	left_vel_pub_.publish(left_vel_);
+	right_vel_pub_.publish(right_vel_);
+	left_pos_pub_.publish(left_pos_);
+	right_pos_pub_.publish(right_pos_);
+	
+	//cout << "steer(twist) : " << twist_msg_.angular.z << "  throttle(twist) : " << twist_msg_.linear.x << endl;
+	ROS_INFO("steer: %f ", left_pos_.data);
 	control_pub_.publish(control_msg);
 }
 
@@ -86,12 +95,13 @@ int LaneDetectorNode::laneDetecting()
 	double angle_ = 0;
 	
 	resize(frame, lane_frame, Size(ncols / resize_n, nrows / resize_n));
-	img_mask = lanedetector.mask(lane_frame);
+	//img_mask = lanedetector.mask(lane_frame);
+	img_mask = frame;
 	lanedetector.filter_colors(img_mask, img_mask2);
 	img_denoise = lanedetector.deNoise(img_mask2);
 
 	double angle = lanedetector.steer_control(img_denoise, steer_height, 12, img_mask, zero_count);
-	ROS_INFO("zero_count: %d", zero_count);
+	//ROS_INFO("zero_count: %d", zero_count);
 	if(zero_count > stop_count){
 		mission_cleared= true;
 		return 0;
